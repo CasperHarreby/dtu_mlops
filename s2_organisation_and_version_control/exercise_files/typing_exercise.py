@@ -1,8 +1,9 @@
-from typing import Callable, Optional, Tuple, Union, List  # you will need all of them in your code
+from __future__ import annotations
+
+from collections.abc import Callable
 
 import torch
 from torch import nn
-import torch.utils
 
 
 class Network(nn.Module):
@@ -16,10 +17,11 @@ class Network(nn.Module):
     """
 
     def __init__(
-        self, input_size: int,
+        self,
+        input_size: int,
         output_size: int,
-        hidden_layers: int,
-        drop_p: float = 0.5
+        hidden_layers: list[int],
+        drop_p: float = 0.5,
     ) -> None:
         super().__init__()
         # Input to a hidden layer
@@ -33,7 +35,7 @@ class Network(nn.Module):
 
         self.dropout = nn.Dropout(p=drop_p)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the network, returns the output logits."""
         for each in self.hidden_layers:
             x = nn.functional.relu(each(x))
@@ -45,8 +47,8 @@ class Network(nn.Module):
 
 def validation(
     model: nn.Module,
-    testloader: torch.utils.data.dataloader,
-    criterion
+    testloader: torch.utils.data.DataLoader,
+    criterion: Callable | nn.Module,
 ) -> tuple[float, float]:
     """Validation pass through the dataset."""
     accuracy = 0
@@ -70,8 +72,8 @@ def validation(
 
 def train(
     model: nn.Module,
-    trainloader: torch.utils.data.dataloader,
-    testloader: torch.utils.data.dataloader,
+    trainloader: torch.utils.data.DataLoader,
+    testloader: torch.utils.data.DataLoader,
     criterion: Callable | nn.Module,
     optimizer: None | torch.optim.Optimizer = None,
     epochs: int = 5,
