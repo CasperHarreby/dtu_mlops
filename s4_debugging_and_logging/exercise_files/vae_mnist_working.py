@@ -9,6 +9,7 @@ import torchvision.transforms as transforms
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
+from torch.utils.data import TensorDataset
 from torchvision.utils import save_image
 
 # Model Hyperparameters
@@ -27,7 +28,9 @@ epochs = 5
 mnist_transform = transforms.Compose([transforms.ToTensor()])
 
 train_dataset = MNIST(dataset_path, transform=mnist_transform, train=True, download=True)
+train_dataset = TensorDataset(train_dataset.data.float() / 255.0, train_dataset.targets)
 test_dataset = MNIST(dataset_path, transform=mnist_transform, train=False, download=True)
+test_dataset = TensorDataset(test_dataset.data.float() / 255.0, test_dataset.targets)
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
@@ -163,3 +166,8 @@ with torch.no_grad():
     generated_images = decoder(noise)
 
 save_image(generated_images.view(batch_size, 1, 28, 28), "generated_sample.png")
+
+
+import pstats
+p = pstats.Stats('profile.txt')
+p.sort_stats('cumulative').print_stats(10)
